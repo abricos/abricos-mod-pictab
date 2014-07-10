@@ -1,0 +1,81 @@
+<!--{list}-->
+<div id="{i#id}" class="aw-pictab">
+	<div id="{i#width}" class="w760">
+		<div id="{i#tab}" class="drawlist"></div>
+	</div>
+</div>
+
+<!--{tab}-->
+<div id="{i#btns}" class="btns">
+	<ul class="m">
+		<li id="{i#usefm}">
+			<input id="{i#bimgupload}" type="button" value="Загрузить с компьютера" title="Загрузить изображение со своего компьютера"/>
+			<input id="{i#bshowfm}" type="button" value="Выбрать в менеджере файлов" title="Открыть менеджер файлов и выбрать изображение в нем"/>
+		</li>
+		<li>
+			<input id="{i#bimgedit}" type="button" value="Изменить имя" title="Изменить название этой вкладки"/>
+			<input id="{i#bimgclear}" type="button" value="Убрать изображение" title="Убрать изображение"/>
+			<input id="{i#btabremove}" type="button" value="Удалить эту вкладку" title="Удалить эту вкладку со всем содержимым"/>
+		</li>
+	</ul>
+	<div class="clear"></div>
+</div>
+<div id="{i#pane}"></div>
+
+<!--{frow}-->
+<ul class="file">
+	<li><a href="{v#src}" target="_blank" class="src">{v#nm}</a></li>
+	<li><div id="{i#remove}-{v#fid}" class="fileremove"></div></li>
+</ul>
+
+<!--{widget}-->
+<div id="{i#id}" class="draw">
+
+	<div class="toolbar">
+		<div id="{i#clrpicker}" class="tbtn clrpicker" title="Выбрать цвет"></div>
+		<div id="{i#tlhand}" class="tbtn tl-hand-sel"></div>
+		<div id="{i#tlpath}" class="tbtn tl-path" title="Рисовать кистью"></div>
+		<div id="{i#tlerase}" class="tbtn tl-erase" title="Удаление выбранных объектов"></div>
+		<div id="{i#tlcomment}" class="tbtn tl-comment" title="Добавить текстовую пометку"></div>
+		<a id="{i#tlzoomin}" class="tbtn tl-zoomin" title="Открыть изображение в оригинальном размере" href="#" target="_blank">
+		</a>
+	</div>
+	
+	<div class="pane" id="{i#pane}"></div>
+</div>
+
+<!--{fcomt}--><div id="{i#id}" class="fcomt" style="border-color: {v#bclr}; left: {v#left}px; top: {v#top}px">
+	<img src="/modules/pictab/images/remove.gif" id="{i#bclose}" class="bclose" />
+	<div class="info">{v#info}&nbsp;</div>
+	<div class="line" style="border-bottom: 1px solid {v#bclr}; "></div>
+	<div id="{i#text}" class="text"></div>
+	<textarea id="{i#input}" style="display: none"></textarea>
+</div>
+
+<!--{tabedit}-->
+<div class='hd'>Редактор названия вкладки</div>
+<div class='bd'>
+	<div class="field">
+		<p>
+			<input type="text" style="width: 250px;" id="{i#input}" />
+		</p>
+
+		<div class="buttons right">
+			<input type="button" value="Сохранить" id="{i#bsave}" class="btn" />
+			<input type="button" value="Отмена" id="{i#bcancel}" class="btn" />
+		</div>
+	</div>
+</div>
+
+<!--{tabremovepanel}-->
+<div class='hd'>Удаление вкладку</div>
+<div class='bd'>
+	<div class="field">
+		<p>Вы действительно хотите удалить вкладку <strong>"{v#tl}"</strong> и все ее содержимое?</p>
+
+		<div class="buttons right">
+			<input type="button" value="Удалить" id="{i#bremove}" class="btn" />
+			<input type="button" value="Отмена" id="{i#bcancel}" class="btn" />
+		</div>
+	</div>
+</div>

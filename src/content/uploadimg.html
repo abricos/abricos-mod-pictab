@@ -1,0 +1,84 @@
+<!--[*]
+[tt=window]_sys[/tt]
+[script]uploadimg.php[/script]
+[bkvar=ok]
+	window.opener.Brick.mod.pictab.activeDrawlist.setImageByFID('{v#fhash}', '{v#fname}');
+	self.close();
+[/bkvar]
+
+[bkvar=error]
+	var el = document.getElementById('errorpanel');
+	if (el){
+		el.style.display = '';
+	}
+	var elErr = document.getElementById('et-{v#errnum}');
+	if (elErr){
+		elErr.style.display = '';		
+	}
+[/bkvar]
+
+[bkvar=command][/bkvar]
+
+[oomod=filemanager]enthumbs|list=1022x500[/oomod]
+
+[mod=filemanager]accinfo|onlyimage=true[/mod]
+
+[*]-->
+
+<style type="text/css">
+	.mod-pictab h2 {
+		font-size: 1.2em;
+	}
+	.mod-pictab  .errortext {
+		color: red;
+	}
+</style>
+
+<div class="mod-pictab">
+	<h2>Загрузка изображения</h2>
+	<form enctype="multipart/form-data" action="/pictab/uploadimg/go/" method="POST" onsubmit="return beginUpload();">
+		<input type="hidden" name="MAX_FILE_SIZE" value="15728640" />
+		
+		<fieldset id="errorpanel" style="display: none">
+			<legend class="errortext">Ошибка</legend>
+			<div class="errortext">
+				Ну удалось загрузить изображение <b>{v#fname}</b>: 
+				<span id="et-1" style="display: none;">Неизвестный тип файла</span>
+				<span id="et-2" style="display: none;">Размер файла превышает допустимый</span>
+				<span id="et-3" style="display: none;">Ошибка сервера</span>
+				<span id="et-4" style="display: none;">Размер изображения превышает допустимый</span>
+				<span id="et-5" style="display: none;">Недостаточно свободного места в вашем профиле</span>
+				<span id="et-6" style="display: none;">Нет прав на загрузку файла</span>
+				<span id="et-7" style="display: none;">Файл с таким именем уже загружен</span>
+				<span id="et-8" style="display: none;">Не выбран файл или выбранный файл слишком большой</span>
+				<span id="et-9" style="display: none;">Некорректное изображение</span>
+				<span id="et-10" style="display: none;">Некорректное изображение</span>
+			</div>
+		</fieldset>
+
+		<fieldset>
+			<legend>Загрузить файл изображения с вашего компьютера</legend>
+			<div id="btnsUpload">
+				<input type="file" name="image" class="image" size="40" />
+				<input type="submit" value="Загрузить" />				
+			</div>
+			<div id="loading" style="display: none">
+				<img src="/images/loading.gif" />&nbsp;Идет загрузка файла, пожалуйста, подождите...
+			</div>
+		</fieldset>
+		
+	</form>
+	
+	[mod]filemanager:accinfo[/mod]
+</div>
+
+<script type="text/javascript">
+	[bkvar]command[/bkvar]
+
+	beginUpload = function(){
+		document.getElementById('btnsUpload').style.display = 'none';
+		document.getElementById('loading').style.display = '';
+		return true;
+	};
+</script>
+

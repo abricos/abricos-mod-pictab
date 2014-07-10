@@ -1,0 +1,159 @@
+.aw-pictab .yui-navset .yui-content {
+	background: none repeat scroll 0 0 #FFF;
+	border: 1px dotted;
+	border-top: none;
+	padding: 0;
+}
+
+.aw-pictab .w760 .drawlist,
+.aw-pictab .w760 .draw .toolbar,
+.aw-pictab .w760 .draw .canvas,
+.aw-pictab .w760 .draw .pane {
+	width: 760px;
+}
+
+.aw-pictab .drawlist .btns {
+	padding: 7px 3px;
+}
+
+.aw-pictab .drawlist .btns ul.m li {
+	float: left;
+}
+.aw-pictab .drawlist .btns ul.m ul.file li {
+	margin-right: 2px;
+}
+.aw-pictab .drawlist .btns ul.m ul.file a.src {
+	font-size: 1.2em;
+}
+
+.aw-pictab .drawlist .btns ul.m ul.file {
+	margin-right: 20px;
+}
+
+.aw-pictab .drawlist .btns input{
+	margin-right: 7px;
+	padding: 0 6px;
+}
+
+.aw-pictab .draw .toolbar {
+	position: relative;
+	height: 42px; 
+	border-top: 1px dotted;
+	border-bottom: 1px dotted;
+}
+.aw-pictab .draw .toolbar .tbtn {
+	float: left;
+	width:  24px;
+	height: 22px;
+	margin-left: 3px;
+	margin-top: 9px;
+	cursor: pointer;
+}
+
+.aw-pictab .draw .toolbar .clrpicker {
+	margin-left: 10px;
+	margin-right: 7px;
+	width:  22px;
+	height: 20px;
+	border: 1px solid #000;
+	background-color: #0000ff;
+}
+
+.aw-pictab .draw .toolbar .tl-hand {
+	background: url("/modules/pictab/images/tools.png") no-repeat scroll 0 0 transparent;
+}
+.aw-pictab .draw .toolbar .tl-hand-sel,
+.aw-pictab .draw .toolbar .tl-hand:hover {
+		background: url("/modules/pictab/images/tools.png") no-repeat scroll 0 -22px transparent;
+}
+
+.aw-pictab .draw .toolbar .tl-path {
+	background: url("/modules/pictab/images/tools.png") no-repeat scroll 0 -44px transparent;
+}
+.aw-pictab .draw .toolbar .tl-path-sel,
+.aw-pictab .draw .toolbar .tl-path:hover {
+		background: url("/modules/pictab/images/tools.png") no-repeat scroll 0 -66px transparent;
+}
+
+.aw-pictab .draw .toolbar .tl-erase {
+	background: url("/modules/pictab/images/tools.png") no-repeat scroll 0 -88px transparent;
+}
+.aw-pictab .draw .toolbar .tl-erase-sel,
+.aw-pictab .draw .toolbar .tl-erase:hover {
+		background: url("/modules/pictab/images/tools.png") no-repeat scroll 0 -110px transparent;
+}
+
+.aw-pictab .draw .toolbar .tl-comment {
+	background: url("/modules/pictab/images/tools.png") no-repeat scroll 0 -132px transparent;
+}
+.aw-pictab .draw .toolbar .tl-comment-sel,
+.aw-pictab .draw .toolbar .tl-comment:hover {
+		background: url("/modules/pictab/images/tools.png") no-repeat scroll 0 -154px transparent;
+}
+
+.aw-pictab .draw .toolbar .tl-zoomin {
+	background: url("/modules/pictab/images/tools.png") no-repeat scroll 0 -176px transparent;
+}
+.aw-pictab .draw .toolbar .tl-zoomin-sel,
+.aw-pictab .draw .toolbar .tl-zoomin:hover {
+		background: url("/modules/pictab/images/tools.png") no-repeat scroll 0 -198px transparent;
+}
+
+
+.aw-pictab .draw .pane {
+	position: relative;
+	height: 502px;
+}
+.aw-pictab .draw .canvas {
+	position: absolute;
+	height: 502px;
+	left: 0px;
+	top: 0px;
+	background-repeat: no-repeat;
+	background-position: top left right;
+}
+
+.aw-pictab .draw .bground {
+	position: absolute;
+	left: 1px;
+	top: 1px;
+}
+
+.aw-pictab .draw .pane .fcomt {
+	position: absolute;
+	width: 300px;
+	background-color: #FFF;
+	border: 1px solid #000;
+}
+.aw-pictab .draw .pane .fcomt .bclose {
+	position: absolute;
+	right: 1px;
+	top: 1px;
+	cursor: pointer;
+}
+
+.aw-pictab .draw .pane .fcomt .info {
+	font-size: .9em;
+	color: #999;
+	margin: 2px 5px;
+}
+
+.aw-pictab .draw .pane .fcomt .text,
+.aw-pictab .draw .pane .fcomt textarea {
+	padding: 0;
+	margin: 5px;
+	font-family: Verdana,sans-serif,Arial,FreeSans;
+	font-size: 12px;
+	line-height: 1.1em;
+}
+
+.aw-pictab .draw .pane .fcomt .text {
+	min-height: 10px;
+}
+
+.aw-pictab .draw .pane .fcomt textarea {
+	width: 185px;
+	height: 60px;
+	border: none;
+}
+
