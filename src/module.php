@@ -31,7 +31,7 @@ class PictabModule extends Ab_Module {
 
 	public function GetContentName(){
 		$cname = '';
-		$adress = $this->registry->adress;
+		$adress = Abricos::$adress;
 		
 		if ($adress->level >= 2 && $adress->dir[1] == 'uploadimg'){
 			$cname = $adress->dir[1];
