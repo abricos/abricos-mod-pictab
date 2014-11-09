@@ -128,7 +128,7 @@ Component.entryPoint = function(NS){
 			this.drawWidget = new NS.DrawWidget(TM.getEl('tab.pane'), image, function(drawWidget){
 				drawWidget.canvas.changedEvent.subscribe(__self.onCanvasChanged, __self, true);
 			});
-			var useFM = Brick.Permission.check('filemanager', '30') == 1;
+			var useFM = Brick.AppRoles.check('filemanager', '30');
 			Dom.setStyle(TM.getEl('tab.usefm'), 'display', useFM ? '' : 'none');
 			
 			if (this.viewMode){
