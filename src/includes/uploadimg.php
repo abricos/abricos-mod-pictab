@@ -19,7 +19,9 @@ if (empty($modFM)){
 $brick = Brick::$builder->brick;
 $var = &$brick->param->var;
 
-if (Abricos::$adress->dir[2] !== "go"){
+$adress = Abricos::$adress;
+
+if ($adress->level < 3 || $adress->dir[2] !== "go"){
     return;
 }
 

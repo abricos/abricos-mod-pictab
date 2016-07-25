@@ -7,14 +7,9 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
-        L = YAHOO.lang;
-
-    var API = NS.API,
-        R = NS.roles;
-
-    var buildTemplate = this.buildTemplate;
+    var L = YAHOO.lang,
+        API = NS.API,
+        buildTemplate = this.buildTemplate;
 
     var ColorPickerPanel = function(color, callback){
         this.color = color;
@@ -36,8 +31,8 @@ Component.entryPoint = function(NS){
 
             this.picker = new YAHOO.widget.ColorPicker(TM.getEl('panel.picker'), {
                 images: {
-                    PICKER_THUMB: "/modules/chart/i/picker_thumb.png",
-                    HUE_THUMB: "/modules/chart/i/hue_thumb.png"
+                    PICKER_THUMB: "/modules/pictab/i/picker_thumb.png",
+                    HUE_THUMB: "/modules/pictab/i/hue_thumb.png"
                 }
             });
 
@@ -71,9 +66,5 @@ Component.entryPoint = function(NS){
         }
     });
     NS.ColorPickerPanel = ColorPickerPanel;
-
-    API.showColorPickerPanel = function(color, callback){
-        new ColorPickerPanel(color, callback);
-    };
 
 };
