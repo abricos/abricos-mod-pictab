@@ -1,7 +1,7 @@
 <!--{widget}-->
 <div class="canvas">
 
-    <div class="btn-toolbar">
+    <div id="{i#toolbar}" class="btn-toolbar">
         <div class="btn-group">
             <button id="{i#colorPicker}" data-click="colorPicker"
                     class="btn btn-default btn-xs"
@@ -11,18 +11,27 @@
         </div>
 
         <div class="btn-group">
+            <button id="{i#toolHand}" data-click="toolHand"
+                    class="btnTool btn btn-default btn-xs"
+                    data-name="hand"
+                    title="Сбросить инструмент">
+                <i class="fa fa-hand-pointer-o" aria-hidden="true"></i>
+            </button>
             <button id="{i#toolPath}" data-click="toolPath"
-                    class="btn btn-default btn-xs"
+                    class="btnTool btn btn-default btn-xs"
+                    data-name="path"
                     title="Рисовать кистью">
                 <i class="fa fa-paint-brush" aria-hidden="true"></i>
             </button>
             <button id="{i#toolComment}" data-click="toolComment"
-                    class="btn btn-default btn-xs"
+                    class="btnTool btn btn-default btn-xs"
+                    data-name="cmt"
                     title="Добавить текстовую пометку">
                 <i class="fa fa-commenting-o" aria-hidden="true"></i>
             </button>
             <button id="{i#toolEraser}" data-click="toolEraser"
-                    class="btn btn-default btn-xs"
+                    class="btnTool btn btn-default btn-xs"
+                    data-name="erase"
                     title="Удаление выбранных объектов">
                 <i class="fa fa-eraser" aria-hidden="true"></i>
             </button>

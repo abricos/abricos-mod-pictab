@@ -69,11 +69,11 @@ Component.entryPoint = function(NS){
             this.backgroundLayer = layers[0];
 
             var instance = this;
-            this.canvas = new NS.Canvas(tp.gel('pane'), {
-                'width': 1022,
-                'height': 500,
-                'layers': layers,
-                'callback': function(canvas){
+            this.canvas = new NS.Canvas(tp.one('pane'), {
+                width: 1022,
+                height: 500,
+                layers: layers,
+                callback: function(canvas){
                     canvas.drawToolManager.selectEvent.subscribe(function(){
                         instance.renderTool();
                     });
@@ -143,26 +143,19 @@ Component.entryPoint = function(NS){
         imageZoomIn: function(){
             return this.template.gel('openOriginImage').href == "#";
         },
-        selectTool: function(tlname){
+        selectTool: function(name){
             var dwt = this.canvas.drawToolManager;
-            dwt.selectByName(tlname);
+            dwt.selectByName(name);
         },
         renderTool: function(){
             var tp = this.template,
                 dwt = this.canvas.drawToolManager,
                 tool = dwt.selected;
 
-            dwt.tools.foreach(function(tl){
-                var el = tp.gel('tl' + tl.name);
-                if (Y.Lang.isNull(el)){
-                    return;
-                }
-                var cs = 'tl-' + tl.name;
-                Dom.replaceClass(el, cs + '-sel', cs);
-                if (tl.name == tool.name){
-                    Dom.replaceClass(el, cs, cs + '-sel');
-                }
-            });
+            tp.one('toolbar').all('.btnTool').each(function(node){
+                var name = node.getData('name');
+                node.toggleClass('active', tool.name === name);
+            }, this);
         },
         toJSON: function(){
             return {
@@ -181,4 +174,82 @@ Component.entryPoint = function(NS){
     });
 
 
+    // Полотно для рисования.
+    // callback будет вызван после инициализации полотна
+    // (для инициализации создается "отдельный" поток - решение в лоб TODO: продумать более позитивное решение)
+    var Canvas = function(container, config){
+        config = Y.merge({
+            'width': 400,
+            'height': 300,
+            'layers': [],
+            'callback': null
+        }, config || {});
+        this.init(container, config);
+    };
+    Canvas.prototype = {
+        init: function(container, config){
+            this.changedEvent = new YAHOO.util.CustomEvent('changedEvent');
+
+            var instance = this;
+
+            setTimeout(function(){
+                instance._initCanvas(container, config);
+            }, 100);
+        },
+        _initCanvas: function(el, config){
+            this._container = el;
+            this.width = config['width'];
+            this.height = config['height'];
+
+            this.layers = new NS.LayerList(this);
+
+            for (var i = 0; i < config['layers'].length; i++){
+                this.addLayer(config['layers'][i]);
+            }
+
+            this.drawToolManager = new NS.DrawToolManager(this);
+
+            el.on('mousedown', this._mouseEvent, this);
+            el.on('mouseup', this._mouseEvent, this);
+            el.on('mousemove', this._mouseEvent, this);
+            el.on('mouseover', this._mouseEvent, this);
+            el.on('mouseout', this._mouseEvent, this);
+            el.on('click', this._mouseEvent, this);
+
+            config.callback(this);
+        },
+        fireChangedEvent: function(action, object){
+            this.changedEvent.fire({
+                'action': action,
+                'object': object
+            });
+        },
+        addLayer: function(layer){
+            layer.setCanvas(this);
+            this.layers.add(layer);
+            layer.refresh();
+        },
+        setSize: function(width, height){
+            this.width = width;
+            this.height = height;
+            // так же нужно установить на все слои. а лучше вызвать событие, чтобы все подписчики у себя поменяли эти размеры
+        },
+        _mouseEvent: function(evt){
+            this.drawToolManager.mouseEvent(evt);
+        },
+        toJSON: function(){
+            var ret = {
+                'ls': [],
+                'w': this.width,
+                'h': this.height,
+                'color': this.drawToolManager.selectedColor
+            };
+            var rls = ret['ls'];
+            this.layers.foreach(function(layer){
+                rls[rls.length] = layer.toJSON();
+            });
+            return ret;
+        }
+    };
+    NS.Canvas = Canvas;
 };

@@ -118,7 +118,7 @@ Component.entryPoint = function(NS){
         cfg = Y.merge({
             'color': color,
             'path': path,
-            'width': 2
+            width: 2
         }, cfg || {});
 
         PathFeature.superclass.constructor.call(this, 'path', cfg);
@@ -129,7 +129,7 @@ Component.entryPoint = function(NS){
 
             this.color = cfg['color'];
             this.path = cfg['path'];
-            this.width = cfg['width'];
+            this.width = cfg.width;
             this._fobj = null;
         },
         destroy: function(){
@@ -153,7 +153,6 @@ Component.entryPoint = function(NS){
 
             gline.attr({'path': this.path.join(",")});
             this._fobj = gline;
-            var __self = this;
         },
         eventSubscribe: function(ename, f){
             this._fobj[ename](f);
@@ -189,7 +188,7 @@ Component.entryPoint = function(NS){
             'path': path,
             'text': text,
             'contentid': contentid,
-            'width': 2,
+            width: 2,
             'userid': userid,
             'date': new Date(udate * 1000)
         }, cfg || {});
@@ -205,7 +204,7 @@ Component.entryPoint = function(NS){
             this.path = cfg['path'];
             this.text = cfg['text'];
             this.contentid = cfg['contentid'];
-            this.width = cfg['width'];
+            this.width = cfg.width;
             this._fobj = null;
             this._isEditMode = false;
         },
@@ -254,10 +253,10 @@ Component.entryPoint = function(NS){
             div.removeChild(el);
             canvas._container.appendChild(el);
 
-            var __self = this;
+            var instance = this;
             E.on(TM.getEl('fcomt.id'), 'click', function(e){
                 var el = E.getTarget(e);
-                if (__self.onClick(el)){
+                if (instance.onClick(el)){
                     E.preventDefault(e);
                 }
             });
@@ -370,8 +369,8 @@ Component.entryPoint = function(NS){
     // Изображение
     var ImageFeature = function(src, cfg){
         cfg = Y.merge({
-            'src': src,
-            'x': 0, 'y': 0, 'width': 1, 'height': 1
+            src: src,
+            x: 0, y: 0, width: 1, height: 1
         }, cfg || []);
         ImageFeature.superclass.constructor.call(this, 'image', cfg);
     };
@@ -382,7 +381,7 @@ Component.entryPoint = function(NS){
             this._imgobj = null;
 
             this.src = cfg['src'];
-            this.setRegion(cfg['x'], cfg['y'], cfg['width'], cfg['height']);
+            this.setRegion(cfg.x, cfg.y, cfg.width, cfg.height);
         },
         setRegion: function(x, y, width, height){
             this.x = x;
@@ -406,10 +405,10 @@ Component.entryPoint = function(NS){
             this.src = src;
             /*
              var image = new Image();
-             var __self = this;
+             var instance = this;
              image.onload = function(){
-             __self.image = __self.graphicsbg.image('/modules/bodraw/worker/001.jpg', 0, 0, 1022, 500);
-             __self.image.toBack();
+             instance.image = instance.graphicsbg.image('/modules/bodraw/worker/001.jpg', 0, 0, 1022, 500);
+             instance.image.toBack();
              };
              image.src = '/modules/bodraw/worker/001.jpg';
              /**/
@@ -417,7 +416,7 @@ Component.entryPoint = function(NS){
         toSave: function(){
             return {
                 'tp': this.type,
-                'src': this.src,
+                src: this.src,
                 'rg': [this.x, this.y, this.width, this.height]
             };
         }
@@ -493,16 +492,16 @@ Component.entryPoint = function(NS){
             feature.unSelect();
         },
         _featureEventMethod: function(subscribe){
-            var __self = this;
+            var instance = this;
             // был выбран этот инструмент
             this.manager.canvas.layers.foreach(function(layer){
                 layer.features.foreach(function(feature){
 
                     var fmOver = function(){
-                        __self._featureMouseOver(layer, feature);
+                        instance._featureMouseOver(layer, feature);
                     };
                     var fmOut = function(){
-                        __self._featureMouseOut(layer, feature);
+                        instance._featureMouseOut(layer, feature);
                     };
 
                     if (subscribe){
@@ -538,11 +537,14 @@ Component.entryPoint = function(NS){
             this.gline = null;
         },
         startDraw: function(e){
-            if (!L.isNull(this.gline)){
+            if (this.gline){
                 this.stopDraw(e);
             }
 
-            var layer = e.layer, g = layer.graphics, glines = g.set(), gline;
+            var layer = e.layer,
+                g = layer.graphics,
+                glines = g.set(),
+                gline;
 
             glines.push(gline = g.path().attr({
                 'stroke': '#' + e.tools.selectedColor,
@@ -553,7 +555,6 @@ Component.entryPoint = function(NS){
             }));
             this.gline = gline;
             this.path = ["M", e.x, e.y];
-
         },
         moveDraw: function(e){
             if (L.isNull(this.gline)){
@@ -739,15 +740,11 @@ Component.entryPoint = function(NS){
         },
         selectByName: function(tlname){
             var tool = this.tools.get(tlname);
-            if (L.isNull(tool)){
+            if (!tool || this.selected === tool){
                 return;
             }
 
-            if (this.selected == tool){
-                return;
-            }
-
-            if (!L.isNull(this.selected)){
+            if (this.selected){
                 this.selected.onUnSelect();
             }
 
@@ -755,37 +752,41 @@ Component.entryPoint = function(NS){
             this.selected.onSelect();
             this.selectEvent.fire(tool);
         },
+        _getXY: function(e){
+            var node = this.canvas._container,
+                nXY = node.getXY(),
+                x = Math.round(Math.max(e.pageX - nXY[0], 0)),
+                y = Math.round(Math.max(e.pageY - nXY[1], 0));
 
-        _getXY: function(evt){
-            var xy = YAHOO.util.Event.getXY(evt);
-            var xy1 = Dom.getXY(this.canvas._container);
-
-            return [Math.max(xy[0] - xy1[0], 0), Math.max(xy[1] - xy1[1], 0)];
+            return [x, y];
         },
         mouseEvent: function(evt){
             var layer = this.canvas.layers.getLast();
-            if (L.isNull(layer)){
+            if (!layer){
                 return;
             }
-            var xy = this._getXY(evt),
+
+            var tool = this.selected,
+                toolFn = tool[EFN[evt.type]],
+                xy = this._getXY(evt),
                 x = xy[0], y = xy[1];
-            var tool = this.selected;
-            if (!L.isFunction(tool[EFN[evt.type]])){
+
+            if (!L.isFunction(toolFn)){
                 return;
             }
 
             tool[EFN[evt.type]]({
-                'event': evt,
-                'tools': this,
-                'layer': layer,
-                'x': x, 'y': y
+                event: evt,
+                tools: this,
+                layer: layer,
+                x: x, y: y
             });
         },
         showSelectColorPanel: function(callback){
-            var __self = this;
+            var instance = this;
 
             new NS.ColorPickerPanel(this.selectedColor, function(color){
-                __self.selectedColor = color;
+                instance.selectedColor = color;
                 if (L.isFunction(callback)){
                     callback(color);
                 }
@@ -799,7 +800,7 @@ Component.entryPoint = function(NS){
     var Layer = function(cfg){
 
         cfg = Y.merge({
-            'features': []
+            features: []
         }, cfg || {});
 
         this.init(cfg);
@@ -825,7 +826,10 @@ Component.entryPoint = function(NS){
             this.canvas = canvas;
         },
         refresh: function(){
-            var g = this.graphics, canvas = this.canvas, layer = this;
+            var g = this.graphics,
+                canvas = this.canvas,
+                layer = this;
+
             this.features.foreach(function(feature){
                 feature.canvas = canvas;
                 feature.layer = layer;
@@ -884,98 +888,4 @@ Component.entryPoint = function(NS){
     };
     NS.LayerList = LayerList;
 
-    // Полотно для рисования.
-    // callback будет вызван после инициализации полотна
-    // (для инициализации создается "отдельный" поток - решение в лоб TODO: продумать более позитивное решение)
-    var Canvas = function(container, config){
-        config = Y.merge({
-            'width': 400,
-            'height': 300,
-            'layers': [],
-            'callback': null
-        }, config || {});
-        this.init(container, config);
-    };
-    Canvas.prototype = {
-        init: function(container, config){
-            var __self = this;
-
-            this.changedEvent = new YAHOO.util.CustomEvent('changedEvent');
-
-            setTimeout(function(){
-                __self._initCanvas(container, config);
-            }, 100);
-        },
-        _initCanvas: function(container, config){
-            this._container = container;
-            this.width = config['width'];
-            this.height = config['height'];
-
-            this.layers = new LayerList(this);
-
-            for (var i = 0; i < config['layers'].length; i++){
-                this.addLayer(config['layers'][i]);
-            }
-
-            this.drawToolManager = new DrawToolManager(this);
-
-            var el = container, __self = this;
-            E.on(el, 'mousedown', function(evt){
-                __self._mouseEvent(evt);
-            });
-            E.on(el, 'mouseup', function(evt){
-                __self._mouseEvent(evt);
-            });
-            E.on(el, 'mousemove', function(evt){
-                __self._mouseEvent(evt);
-            });
-            E.on(el, 'mouseover', function(evt){
-                __self._mouseEvent(evt);
-            });
-            E.on(el, 'mouseout', function(evt){
-                __self._mouseEvent(evt);
-            });
-            E.on(el, 'click', function(evt){
-                __self._mouseEvent(evt);
-            });
-
-            if (L.isFunction(config['callback'])){
-                config['callback'](this);
-            }
-        },
-        fireChangedEvent: function(action, object){
-            this.changedEvent.fire({
-                'action': action,
-                'object': object
-            });
-        },
-        addLayer: function(layer){
-            layer.setCanvas(this);
-            this.layers.add(layer);
-            layer.refresh();
-        },
-        setSize: function(width, height){
-            this.width = width;
-            this.height = height;
-            // так же нужно установить на все слои. а лучше вызвать событие, чтобы все подписчики у себя поменяли эти размеры
-        },
-        _mouseEvent: function(evt){
-            this.drawToolManager.mouseEvent(evt);
-        },
-        toSave: function(){
-
-            var ret = {
-                'ls': [],
-                'w': this.width,
-                'h': this.height,
-                'color': this.drawToolManager.selectedColor
-            };
-            var rls = ret['ls'];
-            this.layers.foreach(function(layer){
-                rls[rls.length] = layer.toSave();
-            });
-            return ret;
-        }
-    };
-    NS.Canvas = Canvas;
 };
