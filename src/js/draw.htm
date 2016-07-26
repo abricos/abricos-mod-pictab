@@ -3,20 +3,20 @@
     <div class="panel-heading">
         <button id="{i#buttonAddTab}"
                 data-click="addTab"
-                class="btn btn-default btn-xs"
+                class="btn btn-default btn-sm"
                 data-wait="disable">
             <i class="fa fa-plus" aria-hidden="true"></i>
             Добавить вкладку
         </button>
         <button id="{i#buttonEnable}"
                 data-click="enable"
-                class="btn btn-default btn-xs hide"
+                class="btn btn-default btn-sm hide"
                 data-wait="disable">
             Использовать
         </button>
         <button id="{i#buttonDisable}"
                 data-click="disable"
-                class="btn btn-default btn-xs"
+                class="btn btn-default btn-sm"
                 data-wait="disable">
             Не использовать
         </button>
@@ -27,41 +27,88 @@
 </div>
 
 <!--{tab}-->
-<div class="imagePane">
-    <div class="pull-left">
-        <div class="btn-group">
-            <button data-click="uploadImage"
-                    class="btn btn-default btn-xs"
-                    title="Загрузить изображение со своего компьютера"
-                    type="button">
-                <i class="fa fa-upload" aria-hidden="true"></i>
-            </button>
-            <button data-click="showFileManager"
-                    class="btn btn-default btn-xs"
-                    title="Открыть менеджер файлов и выбрать изображение в нем"
-                    type="button">
-                <i class="fa fa-floppy-o" aria-hidden="true"></i>
-            </button>
+<div class="picTabPage">
+    <div class="tabToolsPanel">
+        <div id="{i#buttonsPanel}">
+            <div class="pull-left">
+                <div class="btn-group">
+                    <button data-click="uploadImage"
+                            class="btn btn-default btn-sm"
+                            title="Загрузить изображение со своего компьютера"
+                            type="button">
+                        <i class="fa fa-upload" aria-hidden="true"></i>
+                    </button>
+                    <button data-click="showFileManager"
+                            class="btn btn-default btn-sm"
+                            title="Открыть менеджер файлов и выбрать изображение в нем"
+                            type="button">
+                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="pull-right">
+                <div class="btn-group">
+                    <button data-click="showTitleEditor"
+                            class="btn btn-default btn-sm"
+                            title="Изменить имя"
+                            type="button">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    </button>
+                    <button data-click="showRemoveTab"
+                            class="btn btn-default btn-sm"
+                            title="Удалить эту вкладку со всем содержимым"
+                            type="button">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="pull-right">
-        <div class="btn-group">
-            <button data-click="titleChange"
-                    class="btn btn-default btn-xs"
-                    title="Изменить имя"
-                    type="button">
-                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-            </button>
-            <button data-click="removeTab"
-                    class="btn btn-default btn-xs"
-                    title="Удалить эту вкладку со всем содержимым"
-                    type="button">
-                <i class="fa fa-trash" aria-hidden="true"></i>
-            </button>
-        </div>
-    </div>
-    <div class="clearfix"></div>
 
-    <hr/>
+        <div id="{i#editTitlePanel}" class="hide input-group">
+            <input id="{i#titleEditor}" class="form-control input-sm " type="text"
+                   placeholder="Введите название вкладки"/>
+
+            <div class="input-group-btn">
+                <button data-click="saveTitle"
+                        class="btn btn-default btn-sm"
+                        title="Сохранить"
+                        type="button">
+                    Сохранить
+                </button>
+                <button data-click="hideTitleEditor"
+                        class="btn btn-default btn-sm"
+                        title="Отмена"
+                        type="button">
+                    Отмена
+                </button>
+            </div>
+        </div>
+
+        <div id="{i#removePanel}" class="hide">
+            <span class="form-control1 text-danger">
+                Вы действительно хотите удалить вкладку со всем её cодержимым?
+            </span>
+
+            <div class="btn-group pull-right text-right">
+                <button data-click="removeTab"
+                        class="btn btn-default btn-sm"
+                        title="Удалить"
+                        type="button">
+                    Удалить
+                </button>
+                <button data-click="hideRemoveTab"
+                        class="btn btn-default btn-sm"
+                        title="Отмена"
+                        type="button">
+                    Отмена
+                </button>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <hr/>
+    </div>
+
     <div id="{i#canvas}"></div>
 </div>

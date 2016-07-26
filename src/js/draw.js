@@ -11,6 +11,7 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
+    //<editor-fold desc="PicTabPageWidget">
     NS.PicTabPageWidget = Y.Base.create('PicTabPageWidget', SYS.AppWidget, [
         SYS.TabViewPageBase
     ], {
@@ -32,6 +33,8 @@ Component.entryPoint = function(NS){
         onCanvasChanged: function(type, args){
             this.owner.changedEvent.fire();
         },
+
+        //<editor-fold desc="Upload Image">
         showFileManager: function(){
             var instance = this;
             Brick.Component.API.fire('filemanager', 'api', 'showFileBrowserPanel', function(result){
@@ -68,8 +71,41 @@ Component.entryPoint = function(NS){
             }
             this.canvasWidget.setBackground(url);
         },
-        toJSON: function(){
+        //</editor-fold>
 
+        //<editor-fold desc="Title Editor">
+        _titleEditorVisible: function(visible){
+            this.template.toggleView(visible, 'editTitlePanel', 'buttonsPanel');
+        },
+        showTitleEditor: function(){
+            this.template.setValue('titleEditor', this.get('title'));
+            this._titleEditorVisible(true);
+        },
+        saveTitle: function(){
+            this.set('title', this.template.getValue('titleEditor'));
+            this._titleEditorVisible(false);
+        },
+        hideTitleEditor: function(){
+            this._titleEditorVisible(false);
+        },
+        //</editor-fold>
+
+        //<editor-fold desc="Remove Tab">
+        _removeTabVisible: function(visible){
+            this.template.toggleView(visible, 'removePanel', 'buttonsPanel');
+        },
+        showRemoveTab: function(){
+            this._removeTabVisible(true);
+        },
+        hideRemoveTab: function(){
+            this._removeTabVisible(false);
+        },
+        removeTab: function(){
+            this.get('owner').removeTab(this.get('index'));
+        },
+        //</editor-fold>
+
+        toJSON: function(){
         }
     }, {
         ATTRS: {
@@ -79,9 +115,18 @@ Component.entryPoint = function(NS){
         },
         CLICKS: {
             uploadImage: 'uploadImage',
-            showFileManager: 'showFileManager'
+            showFileManager: 'showFileManager',
+
+            showTitleEditor: 'showTitleEditor',
+            hideTitleEditor: 'hideTitleEditor',
+            saveTitle: 'saveTitle',
+
+            showRemoveTab: 'showRemoveTab',
+            hideRemoveTab: 'hideRemoveTab',
+            removeTab: 'removeTab'
         },
     });
+    //</editor-fold>
 
     NS.PicTabWidget = Y.Base.create('PicTabWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
