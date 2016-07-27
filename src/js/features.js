@@ -1,7 +1,7 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: '{C#MODNAME}', files: ['raphael.js', 'colorpicker.js']}
+        {name: '{C#MODNAME}', files: ['lib.js', 'raphael.js', 'colorpicker.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -9,14 +9,6 @@ Component.entryPoint = function(NS){
     var Y = Brick.YUI,
         COMPONENT = this,
         SYS = Brick.mod.sys;
-
-    var Dom = YAHOO.util.Dom,
-        E = YAHOO.util.Event,
-        L = Y.Lang;
-
-    var UP = Brick.mod.uprofile;
-
-    var buildTemplate = this.buildTemplate;
 
     var FeatureList = function(layer){
         this.init(layer);
@@ -31,12 +23,12 @@ Component.entryPoint = function(NS){
         },
         add: function(feature){
             this._list[this._list.length] = feature;
-            if (!L.isNull(this.layer.canvas)){
+            if (this.layer.canvas){
                 this.layer.canvas.fireChangedEvent('addfeature', feature);
             }
         },
         foreach: function(f){
-            if (!L.isFunction(f)){
+            if (!Y.Lang.isFunction(f)){
                 return;
             }
             var lst = this._list;
@@ -60,7 +52,7 @@ Component.entryPoint = function(NS){
                 return false;
             }
             feature.destroy();
-            if (!L.isNull(this.layer.canvas)){
+            if (this.layer.canvas){
                 this.layer.canvas.fireChangedEvent('removefeature', feature);
             }
             return true;
@@ -101,11 +93,11 @@ Component.entryPoint = function(NS){
         },
         unSelect: function(){
         },
-        toSave: function(){
+        toJSON: function(){
             return {'tp': this.type};
         },
         remove: function(){
-            if (L.isNull(this.layer)){
+            if (!this.layer){
                 return;
             }
             this.layer.features.remove(this);
@@ -138,7 +130,7 @@ Component.entryPoint = function(NS){
             this.path = null;
         },
         draw: function(g){
-            if (!L.isNull(this._fobj)){
+            if (this._fobj){
                 return;
             }
 
@@ -166,7 +158,7 @@ Component.entryPoint = function(NS){
         unSelect: function(){
             this._fobj.attr({'opacity': 1});
         },
-        toSave: function(){
+        toJSON: function(){
             return {
                 'tp': this.type,
                 'clr': this.color,
@@ -184,13 +176,13 @@ Component.entryPoint = function(NS){
         text = text || '';
         contentid = contentid || 0;
         cfg = Y.merge({
-            'color': color,
-            'path': path,
-            'text': text,
-            'contentid': contentid,
+            color: color,
+            path: path,
+            text: text,
+            contentid: contentid,
             width: 2,
-            'userid': userid,
-            'date': new Date(udate * 1000)
+            userid: userid,
+            date: new Date(udate * 1000)
         }, cfg || {});
         CommentFeature.superclass.constructor.call(this, 'cmt', cfg);
     };
@@ -213,63 +205,50 @@ Component.entryPoint = function(NS){
             this._fobj = null;
             this.path = null;
 
-            var el = this._TM.getEl('fcomt.id');
-            el.parentNode.removeChild(el);
+            var node = this.template.one('id');
+            node.detachAll();
+            node.remove();
         },
         draw: function(g, canvas, layer){
-            if (!L.isNull(this._fobj)){
+            if (this._fobj){
                 return;
             }
             this.canvas = canvas;
             this.layer = layer;
 
-            var glines = g.set(), gline;
-            glines.push(gline = g.path().attr({
-                'stroke': this.color,
-                'stroke-width': this.width
-            }));
+            var p = this.path,
+                glines = g.set(),
+                gline = g.path().attr({
+                    'stroke': this.color,
+                    'stroke-width': this.width
+                });
 
-            var p = this.path;
-
+            glines.push(gline);
             gline.attr({'path': ["M", p[0], p[1], "L", p[2], p[3]].join(",")});
+
             this._fobj = gline;
 
-            buildTemplate(this, 'fcomt');
-            var div = document.createElement('div'),
-                TM = this._TM;
+            var uprofile = NS.appInstance.getApp('uprofile'),
+                user = uprofile.get('userList').getById(this.userid),
+                tp = this.template =
+                    new SYS.TemplateManagerExt(COMPONENT.key, 'comment'),
+                html = tp.replace('comment', {
+                    'info': !user ? "" : Brick.dateExt.convert(this.date) + ", " + user.get('viewName'),
+                    'bclr': this.color,
+                    'left': p[2] - 150, 'top': p[3]
+                });
 
-            var info = "",
-                user = UP.viewer.users.get(this.userid);
+            canvas._container.append(html);
+            tp.setHTML('text', this.text);
 
-            if (!L.isNull(user)){
-                info = Brick.dateExt.convert(this.date) + ", " + user.getUserName();
-            }
-            div.innerHTML = TM.replace('fcomt', {
-                'info': info,
-                'bclr': this.color,
-                'left': p[2] - 150, 'top': p[3]
-            });
-            var el = div.childNodes[0];
-            div.removeChild(el);
-            canvas._container.appendChild(el);
-
-            var instance = this;
-            E.on(TM.getEl('fcomt.id'), 'click', function(e){
-                var el = E.getTarget(e);
-                if (instance.onClick(el)){
-                    E.preventDefault(e);
-                }
-            });
-
-            TM.getEl('fcomt.text').innerHTML = this.text;
+            tp.one('id').on('click', this.onClick, this);
         },
-        onClick: function(el){
-            var tp = this._TId['fcomt'];
-            switch (el.id) {
-                case tp['bclose']:
+        onClick: function(e){
+            switch (e.target.getData('click')) {
+                case 'close':
                     this.remove();
                     return true;
-                case tp['text']:
+                case 'text':
                     this.setEditMode();
                     return true;
             }
@@ -294,36 +273,31 @@ Component.entryPoint = function(NS){
             }
             this._isEditMode = true;
 
-            var TM = this._TM,
-                elText = TM.getEl('fcomt.text'),
-                elInput = TM.getEl('fcomt.input');
+            var tp = this.template,
+                str = tp.getHTML('text'),
+                inputNode = tp.one('input');
 
-            var str = elText.innerHTML;
             this._oldText = str;
             str = str.replace(/&lt;/gi, '<').replace(/&gt;/gi, '>');
             str = str.replace(/<br \/>/gi, '\n');
             str = str.replace(/<br\/>/gi, '\n');
             str = str.replace(/<br>/gi, '\n');
 
-            var rg = Dom.getRegion(elText);
-
-            var w = Math.max(rg.width, 190),
+            var rg = tp.one('text').get('region'),
+                w = Math.max(rg.width, 190),
                 h = Math.max(rg.height, 30);
 
-            elInput.value = str;
+            tp.setValue('input', str);
+            tp.toggleView(true, 'input', 'text');
 
-            Dom.setStyle(elText, 'display', 'none');
-            Dom.setStyle(elInput, 'display', '');
-            Dom.setStyle(elInput, 'width', w + 'px');
-            Dom.setStyle(elInput, 'height', h + 'px');
+            inputNode.setStyle('width', w + 'px');
+            inputNode.setStyle('height', h + 'px');
 
             try {
-                elInput.focus();
+                inputNode.focus();
+            } catch (e) {
             }
-            catch (e) {
-            }
-
-            E.addListener(elInput, "blur", this.setViewMode, this, true);
+            inputNode.on("blur", this.setViewMode, this);
         },
         setViewMode: function(){
             if (!this._isEditMode){
@@ -331,36 +305,32 @@ Component.entryPoint = function(NS){
             }
             this._isEditMode = false;
 
-            var TM = this._TM,
-                elText = TM.getEl('fcomt.text'),
-                elInput = TM.getEl('fcomt.input');
+            var tp = this.template,
+                str = tp.getValue('input');
 
-            var str = elInput.value;
             str = str.replace(/</gi, '&lt;').replace(/>/gi, '&gt;');
             str = str.replace(/\n/gi, '<br />');
 
-            elText.innerHTML = str;
+            tp.setHTML('text', str);
 
             if (this._oldText != str){
                 this.canvas.fireChangedEvent('changefeature', this);
             }
 
-            Dom.setStyle(elText, 'display', '');
-            Dom.setStyle(elInput, 'display', 'none');
-
-            E.removeListener(elInput, "blur", this.setViewMode);
+            tp.toggleView(true, 'text', 'input');
+            tp.one('input').detach('blur', this.setViewMode, this);
         },
-        toSave: function(){
+        toJSON: function(){
             this.setViewMode();
 
             return {
-                'u': this.userid,
-                'dl': this.date.getTime() / 1000,
-                'tp': this.type,
-                'clr': this.color,
-                'w': this.width,
-                'd': this.path,
-                't': this._TM.getEl('fcomt.text').innerHTML
+                u: this.userid,
+                dl: this.date.getTime() / 1000,
+                tp: this.type,
+                clr: this.color,
+                w: this.width,
+                d: this.path,
+                t: this.template.getHTML('text')
             };
         }
     });
@@ -390,7 +360,7 @@ Component.entryPoint = function(NS){
             this.height = height;
         },
         draw: function(g){
-            if (L.isNull(this._imgobj)){
+            if (!this._imgobj){
                 this._imgobj = g.image(this.src, this.x, this.y, this.width, this.height);
                 this._imgobj.node.setAttribute('preserveAspectRatio', 'xMinYMin');
             }
@@ -413,7 +383,7 @@ Component.entryPoint = function(NS){
              image.src = '/modules/bodraw/worker/001.jpg';
              /**/
         },
-        toSave: function(){
+        toJSON: function(){
             return {
                 'tp': this.type,
                 src: this.src,
@@ -476,7 +446,7 @@ Component.entryPoint = function(NS){
             this._curFeature = null;
         },
         onClick: function(e){
-            if (L.isNull(this._curFeature)){
+            if (!this._curFeature){
                 return;
             }
             this._curLayer.features.remove(this._curFeature);
@@ -557,7 +527,7 @@ Component.entryPoint = function(NS){
             this.path = ["M", e.x, e.y];
         },
         moveDraw: function(e){
-            if (L.isNull(this.gline)){
+            if (!this.gline){
                 return;
             }
 
@@ -565,7 +535,7 @@ Component.entryPoint = function(NS){
             this.gline.attr({path: this.path.join(",")});
         },
         stopDraw: function(e){
-            if (L.isNull(this.gline)){
+            if (!this.gline){
                 return;
             }
             this.gline.remove();
@@ -600,7 +570,7 @@ Component.entryPoint = function(NS){
             this._ismove = false;
         },
         startDraw: function(e){
-            if (!L.isNull(this.gline)){
+            if (this.gline){
                 this.stopDraw(e);
             }
 
@@ -616,7 +586,7 @@ Component.entryPoint = function(NS){
             p[1] = e.y;
         },
         moveDraw: function(e){
-            if (L.isNull(this.gline)){
+            if (!this.gline){
                 return;
             }
 
@@ -628,7 +598,7 @@ Component.entryPoint = function(NS){
             this._ismove = true;
         },
         stopDraw: function(e){
-            if (L.isNull(this.gline)){
+            if (!this.gline){
                 return;
             }
             this.gline.remove();
@@ -677,7 +647,7 @@ Component.entryPoint = function(NS){
             return this._list.length;
         },
         foreach: function(f){
-            if (!L.isFunction(f)){
+            if (!Y.Lang.isFunction(f)){
                 return;
             }
             var lst = this._list;
@@ -771,7 +741,7 @@ Component.entryPoint = function(NS){
                 xy = this._getXY(evt),
                 x = xy[0], y = xy[1];
 
-            if (!L.isFunction(toolFn)){
+            if (!Y.Lang.isFunction(toolFn)){
                 return;
             }
 
@@ -787,7 +757,7 @@ Component.entryPoint = function(NS){
 
             new NS.ColorPickerPanel(this.selectedColor, function(color){
                 instance.selectedColor = color;
-                if (L.isFunction(callback)){
+                if (Y.Lang.isFunction(callback)){
                     callback(color);
                 }
             });
@@ -821,7 +791,7 @@ Component.entryPoint = function(NS){
             var div = document.createElement('div');
             div.id = 'awbodraw' + (__canvasid++);
             canvas._container.appendChild(div);
-            Dom.addClass(div, 'canvas');
+            Y.Node.one(div).addClass('canvas');
             this.graphics = Raphael(div);
             this.canvas = canvas;
         },
@@ -836,7 +806,7 @@ Component.entryPoint = function(NS){
                 feature.draw(g, canvas, layer);
             });
         },
-        toSave: function(){
+        toJSON: function(){
             var ret = {
                 'tp': 'Layer',
                 'fs': []
@@ -844,7 +814,7 @@ Component.entryPoint = function(NS){
 
             var rfs = ret['fs'];
             this.features.foreach(function(feature){
-                rfs[rfs.length] = feature.toSave();
+                rfs[rfs.length] = feature.toJSON();
             });
 
             return ret;
@@ -875,7 +845,7 @@ Component.entryPoint = function(NS){
             return cnt == 0 ? null : this.getByIndex(cnt - 1);
         },
         foreach: function(f){
-            if (!L.isFunction(f)){
+            if (!Y.Lang.isFunction(f)){
                 return;
             }
             var lst = this._list;
