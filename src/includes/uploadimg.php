@@ -11,10 +11,18 @@ if (empty(Abricos::$user->id)){
     return;
 }
 
+/** @var FileManagerModule $modFM */
 $modFM = Abricos::GetModule('filemanager');
 if (empty($modFM)){
     return;
 }
+$modFM->EnableThumbSize(array(
+    array(
+        "w" => 1022,
+        "h" => 500,
+        "cm" => 0
+    )
+));
 
 $brick = Brick::$builder->brick;
 $var = &$brick->param->var;

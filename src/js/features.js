@@ -350,7 +350,7 @@ Component.entryPoint = function(NS){
 
             this._imgobj = null;
 
-            this.src = cfg['src'];
+            this.src = cfg.src;
             this.setRegion(cfg.x, cfg.y, cfg.width, cfg.height);
         },
         setRegion: function(x, y, width, height){
@@ -360,12 +360,25 @@ Component.entryPoint = function(NS){
             this.height = height;
         },
         draw: function(g){
+            var src = this.src || "";
+
+            //<editor-fold desc="Temporal hack: image thumbnail">
+            var tmp = src,
+                a = tmp.split('/').reverse();
+
+            if (a[2] === 'i' && a[3] === 'filemanager'){
+                a.splice(1, 0, 'w_1022-h_500-cm_0');
+                src = a.reverse().join('/');
+            }
+
+            //</editor-fold>
+
             if (!this._imgobj){
-                this._imgobj = g.image(this.src, this.x, this.y, this.width, this.height);
+                this._imgobj = g.image(src, this.x, this.y, this.width, this.height);
                 this._imgobj.node.setAttribute('preserveAspectRatio', 'xMinYMin');
             }
             var node = this._imgobj.node;
-            node.setAttribute('href', this.src);
+            node.setAttribute('href', src);
             node.setAttribute('x', this.x);
             node.setAttribute('y', this.y);
             node.setAttribute('width', this.width);
@@ -373,15 +386,6 @@ Component.entryPoint = function(NS){
         },
         setSrc: function(src){
             this.src = src;
-            /*
-             var image = new Image();
-             var instance = this;
-             image.onload = function(){
-             instance.image = instance.graphicsbg.image('/modules/bodraw/worker/001.jpg', 0, 0, 1022, 500);
-             instance.image.toBack();
-             };
-             image.src = '/modules/bodraw/worker/001.jpg';
-             /**/
         },
         toJSON: function(){
             return {
@@ -792,7 +796,9 @@ Component.entryPoint = function(NS){
             div.id = 'awbodraw' + (__canvasid++);
             canvas._container.appendChild(div);
             Y.Node.one(div).addClass('canvas');
-            this.graphics = Raphael(div);
+            var g = this.graphics = Raphael(div);
+            g.setSize('100%', 500);
+
             this.canvas = canvas;
         },
         refresh: function(){

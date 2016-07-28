@@ -33,21 +33,21 @@ Component.entryPoint = function(NS){
                             var jf = jfs[ii];
                             switch (jf['tp']) {
                                 case 'path':
-                                    fs[fs.length] = new NS.PathFeature(jf['clr'], jf['d']);
+                                    fs[fs.length] = new NS.PathFeature(jf['clr'], jf.d);
                                     break;
                                 case 'cmt':
-                                    jf['u'] = jf['u'] || 0;
+                                    jf.u = jf.u || 0;
                                     jf['dl'] = jf['dl'] || 0;
-                                    fs[fs.length] = new NS.CommentFeature(jf['clr'], jf['d'], jf['t'],
-                                        0, jf['u'], jf['dl']);
+                                    fs[fs.length] = new NS.CommentFeature(jf['clr'], jf.d, jf['t'],
+                                        0, jf.u, jf['dl']);
                                     break;
                                 case 'image':
                                     this.setHrefOnZoomInButton(jf['src']);
                                     fs[fs.length] = new NS.ImageFeature(jf['src'], {
-                                        'x': jf['rg'][0],
-                                        'y': jf['rg'][1],
-                                        'width': jf['rg'][2],
-                                        'height': jf['rg'][3]
+                                        x: jf.rg[0],
+                                        y: jf.rg[1],
+                                        width: jf.rg[2],
+                                        height: jf.rg[3]
                                     });
                                     break;
                             }
@@ -68,10 +68,10 @@ Component.entryPoint = function(NS){
 
             this.backgroundLayer = layers[0];
 
-            var instance = this;
+            var instance = this,
+                rg = this.get('srcNode').get('region');
+
             this.canvas = new NS.Canvas(tp.one('pane'), {
-                width: 1022,
-                height: 500,
                 layers: layers,
                 callback: function(canvas){
                     canvas.drawToolManager.selectEvent.subscribe(function(){
@@ -127,7 +127,7 @@ Component.entryPoint = function(NS){
 
             if (!img){
                 img = new NS.ImageFeature(src, {
-                    'x': 1, 'y': 1, 'width': 1022, 'height': 500
+                    x: 1, y: 1, width: 1022, height: 500
                 });
                 layer.features.add(img);
                 layer.refresh();
@@ -179,10 +179,8 @@ Component.entryPoint = function(NS){
     // (для инициализации создается "отдельный" поток - решение в лоб TODO: продумать более позитивное решение)
     var Canvas = function(container, config){
         config = Y.merge({
-            'width': 400,
-            'height': 300,
-            'layers': [],
-            'callback': null
+            layers: [],
+            callback: null
         }, config || {});
         this.init(container, config);
     };
@@ -198,8 +196,6 @@ Component.entryPoint = function(NS){
         },
         _initCanvas: function(el, config){
             this._container = el;
-            this.width = config['width'];
-            this.height = config['height'];
 
             this.layers = new NS.LayerList(this);
 
@@ -229,20 +225,13 @@ Component.entryPoint = function(NS){
             this.layers.add(layer);
             layer.refresh();
         },
-        setSize: function(width, height){
-            this.width = width;
-            this.height = height;
-            // так же нужно установить на все слои. а лучше вызвать событие, чтобы все подписчики у себя поменяли эти размеры
-        },
         _mouseEvent: function(evt){
             this.drawToolManager.mouseEvent(evt);
         },
         toJSON: function(){
             var ret = {
-                'ls': [],
-                'w': this.width,
-                'h': this.height,
-                'color': this.drawToolManager.selectedColor
+                ls: [],
+                color: this.drawToolManager.selectedColor
             };
             var rls = ret['ls'];
             this.layers.foreach(function(layer){

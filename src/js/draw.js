@@ -59,7 +59,7 @@ Component.entryPoint = function(NS){
             if (loc.port * 1 != 80 && loc.port * 1 > 0){
                 src += ":" + loc.port;
             }
-            src += '/filemanager/i/' + fid + '/' + fname;
+            src += '/filemanager/i/' + fid + '/w_1140-cm_1/' + fname;
             this.setImage(src);
         },
         setImage: function(url){
