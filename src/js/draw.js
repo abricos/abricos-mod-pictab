@@ -130,34 +130,44 @@ Component.entryPoint = function(NS){
 
     NS.PicTabWidget = Y.Base.create('PicTabWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
-            var tp = this.template;
+            var tp = this.template,
+                imageList = this.get('imageList');
 
             this.tabViewWidget = new SYS.TabViewWidget({
                 srcNode: tp.one('tabView')
             });
 
-            this.addTab();
+            if (imageList && imageList.size() > 0){
+                imageList.each(function(image){
+                    this.addTab({
+                        id: image.get('id'),
+                        title: image.get('title'),
+                        data: image.get('data')
+                    });
+                }, this);
+            } else {
+                this.addTab();
+            }
         },
         destructor: function(){
         },
-        addTab: function(imageData){
-            var tp = this.template,
-                tbvWidget = this.tabViewWidget,
+        addTab: function(image){
+            var tbvWidget = this.tabViewWidget,
                 id = tbvWidget.size() + 1;
 
-            imageData = Y.merge({
+            image = Y.merge({
                 id: id,
                 title: 'Image ' + id,
                 data: {}
-            }, imageData || {});
+            }, image || {});
 
             // to older version
-            imageData.title = imageData.tl ? imageData.tl : imageData.title;
-            imageData.data = imageData.d ? imageData.d : imageData.data;
+            image.title = image.tl ? image.tl : image.title;
+            image.data = image.d ? image.d : image.data;
 
             tbvWidget.addTab({
-                title: imageData.title,
-                data: imageData.data,
+                title: image.title,
+                data: image.data,
                 TabViewPage: NS.PicTabPageWidget
             });
         },
@@ -184,6 +194,8 @@ Component.entryPoint = function(NS){
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {value: 'widget'},
+            imageList: {},
+            viewMode: {value: false}
         },
         CLICKS: {
             addTab: 'addTab',
