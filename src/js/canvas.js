@@ -160,7 +160,7 @@ Component.entryPoint = function(NS){
         toJSON: function(){
             return {
                 'v': '0.1',
-                'canvas': this.canvas.toSave()
+                'canvas': this.canvas.toJSON()
             };
         },
     }, {
