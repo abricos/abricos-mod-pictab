@@ -34,7 +34,8 @@ Component.entryPoint = function(NS){
                     });
                 }, this);
             } else {
-                this.addTab();
+                // this.addTab();
+                this.disable();
             }
         },
         destructor: function(){
@@ -57,6 +58,7 @@ Component.entryPoint = function(NS){
                 dbId: image.id,
                 title: image.title,
                 data: image.data,
+                editMode: this.get('editMode'),
                 TabViewPage: NS.PicTabPageWidget
             });
             tab.on('canvasChanged', function(){
@@ -68,6 +70,10 @@ Component.entryPoint = function(NS){
             tp.toggleView(flag, 'body,buttonDisable,buttonAddTab', 'buttonEnable');
         },
         enable: function(){
+            if (this.tabViewWidget.size() === 0){
+                this.addTab();
+            }
+
             this._setUseMode(true);
         },
         disable: function(){
