@@ -45,7 +45,7 @@ Component.entryPoint = function(NS){
                 id = tbvWidget.size() + 1;
 
             image = Y.merge({
-                id: id,
+                id: 0,
                 title: 'Image ' + id,
                 data: {}
             }, image || {});
