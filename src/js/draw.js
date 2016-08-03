@@ -42,7 +42,8 @@ Component.entryPoint = function(NS){
         },
         addTab: function(image){
             var tbvWidget = this.tabViewWidget,
-                id = tbvWidget.size() + 1;
+                id = tbvWidget.size() + 1,
+                isHand = !image;
 
             image = Y.merge({
                 id: 0,
@@ -61,6 +62,9 @@ Component.entryPoint = function(NS){
                 editMode: this.get('editMode'),
                 TabViewPage: NS.PicTabPageWidget
             });
+            if (isHand){
+                tbvWidget.selectTab(tab.get('index'));
+            }
             tab.on('canvasChanged', function(){
                 this.fire('canvasChanged');
             }, this);
@@ -96,7 +100,11 @@ Component.entryPoint = function(NS){
             editMode: {value: false}
         },
         CLICKS: {
-            addTab: 'addTab',
+            addTab: {
+                event: function(){
+                    this.addTab();
+                }
+            },
             enable: 'enable',
             disable: 'disable'
         },
