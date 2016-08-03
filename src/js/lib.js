@@ -10,6 +10,8 @@ Component.entryPoint = function(NS){
     var COMPONENT = this,
         SYS = Brick.mod.sys;
 
+    NS.IMG_THUMB = 'w_1022-h_500-cm_0';
+
     SYS.Application.build(COMPONENT, {}, {
         initializer: function(){
             this.initCallbackFire();
@@ -17,6 +19,7 @@ Component.entryPoint = function(NS){
     }, [], {
         APPS: {
             uprofile: {},
+            filemanager: {},
         },
         ATTRS: {
             isLoadAppStructure: {value: false},

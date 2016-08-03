@@ -363,12 +363,10 @@ Component.entryPoint = function(NS){
             var src = this.src || "";
 
             //<editor-fold desc="Temporal hack: image thumbnail">
-            var tmp = src,
-                a = tmp.split('/').reverse();
+            var a = src.split('/').reverse();
 
             if (a[2] === 'i' && a[3] === 'filemanager'){
-                a.splice(1, 0, 'w_1022-h_500-cm_0');
-                src = a.reverse().join('/');
+                src = '/filemanager/i/' + a[1] + '/' + NS.IMG_THUMB + '/' + a[0];
             }
 
             //</editor-fold>

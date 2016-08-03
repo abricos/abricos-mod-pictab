@@ -116,6 +116,8 @@ Component.entryPoint = function(NS){
 
             tp.toggleView(editMode, 'toolsPanel');
 
+            tp.toggleView(!!Brick.mod.filemanager.roles.isWrite, 'uploadButtons');
+
             this.canvasWidget = new NS.CanvasWidget({
                 srcNode: tp.one('canvas'),
                 data: data,
@@ -147,12 +149,7 @@ Component.entryPoint = function(NS){
             NS.activeTabPageWidget = this;
         },
         setImageByFID: function(fid, fname){
-            var loc = window.location,
-                src = loc.protocol + '//' + loc.hostname;
-            if (loc.port * 1 != 80 && loc.port * 1 > 0){
-                src += ":" + loc.port;
-            }
-            src += '/filemanager/i/' + fid + '/w_1140-cm_1/' + fname;
+            var src = '/filemanager/i/' + fid + '/' + NS.IMG_THUMB + '/' + fname;
             this.setImage(src);
         },
         setImage: function(url){
