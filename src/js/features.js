@@ -114,7 +114,8 @@ Component.entryPoint = function(NS){
             path: path,
             width: 2,
             userid: userid,
-            date: new Date(date * 1000)
+            date: new Date(date * 1000),
+            readOnly: false,
         }, cfg || {});
 
         PathFeature.superclass.constructor.call(this, 'path', cfg);
@@ -128,6 +129,7 @@ Component.entryPoint = function(NS){
             this.color = cfg.color;
             this.path = cfg.path;
             this.width = cfg.width;
+            this.readOnly = cfg.readOnly;
             this._fobj = null;
         },
         destroy: function(){
@@ -188,7 +190,8 @@ Component.entryPoint = function(NS){
             text: text,
             width: 2,
             userid: userid,
-            date: new Date(date * 1000)
+            date: new Date(date * 1000),
+            readOnly: false,
         }, cfg || {});
         CommentFeature.superclass.constructor.call(this, 'cmt', cfg);
     };
@@ -202,6 +205,7 @@ Component.entryPoint = function(NS){
             this.path = cfg.path;
             this.text = cfg.text;
             this.width = cfg.width;
+            this.readOnly = cfg.readOnly;
             this._fobj = null;
             this._isEditMode = false;
         },
@@ -241,7 +245,7 @@ Component.entryPoint = function(NS){
                     'info': !user ? "" : Brick.dateExt.convert(this.date) + ", " + user.get('viewName'),
                     'bclr': this.color,
                     'left': p[2] - 150, 'top': p[3],
-                    closeHide: this.userid > 0 && this.userid !== UID ? 'hide' : ''
+                    closeHide: ((this.userid > 0 && this.userid !== UID) || this.readOnly) ? 'hide' : ''
                 });
 
             canvas._container.append(html);
@@ -477,7 +481,7 @@ Component.entryPoint = function(NS){
             if (!feature){
                 return;
             }
-            if (feature.userid > 0 && feature.userid !== UID){
+            if ((feature.userid > 0 && feature.userid !== UID) || feature.readOnly){
                 return;
             }
             this._curLayer.features.remove(feature);

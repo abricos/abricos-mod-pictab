@@ -30,6 +30,8 @@ Component.entryPoint = function(NS){
                 imageList.each(function(image){
                     this.addTab({
                         id: image.get('id'),
+                        userid: image.get('userid'),
+                        date: image.get('date'),
                         title: image.get('title'),
                         data: image.get('data')
                     });
@@ -125,9 +127,19 @@ Component.entryPoint = function(NS){
             this.publish('canvasChanged');
 
             var tp = this.template,
+                userid = this.get('userid') | 0,
+                date = this.get('date'),
                 data = this.get('data'),
                 instance = this,
-                editMode = this.get('editMode');
+                editMode = this.get('editMode'),
+                userActivity = this.get('userActivity');
+
+
+            if (userid !== UID){
+                editMode = false;
+            } else if (userActivity.userid > 0 && userActivity.date.getTime() > date.getTime()){
+                editMode = false;
+            }
 
             tp.toggleView(editMode, 'toolsPanel');
 
@@ -135,7 +147,10 @@ Component.entryPoint = function(NS){
 
             this.canvasWidget = new NS.CanvasWidget({
                 srcNode: tp.one('canvas'),
+                userid: userid,
+                date: date,
                 data: data,
+                userActivity: userActivity,
                 callback: function(drawWidget){
                     drawWidget.canvas.changedEvent.subscribe(instance.onCanvasChanged, instance, true);
                 }
@@ -213,7 +228,7 @@ Component.entryPoint = function(NS){
         toJSON: function(){
             return {
                 id: this.get('dbId'),
-                useri: this.get('userid'),
+                userid: this.get('userid'),
                 date: this.get('date'),
                 title: this.get('title'),
                 data: this.canvasWidget.toJSON()
@@ -224,6 +239,8 @@ Component.entryPoint = function(NS){
             component: {value: COMPONENT},
             templateBlockName: {value: 'tab'},
             dbId: {value: 0},
+            userid: {value: UID},
+            date: {value: new Date()},
             data: {value: {}},
             editMode: {value: false},
             userActivity: {value: {}},

@@ -8,7 +8,8 @@ Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
         COMPONENT = this,
-        SYS = Brick.mod.sys;
+        SYS = Brick.mod.sys,
+        UID = Brick.env.user.id | 0;
 
     NS.CanvasWidget = Y.Base.create('CanvasWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
@@ -48,6 +49,20 @@ Component.entryPoint = function(NS){
         },
         destructor: function(){
         },
+        _isFeatureReadOnly: function(d){
+            var userActivity = this.get('userActivity');
+
+            if (d.u != UID){
+                return true;
+            }
+
+            var date = new Date(d.dl * 1000);
+
+            if (userActivity.userid > 0 && d.dl && userActivity.date.getTime() > date.getTime()){
+                return true;
+            }
+            return false;
+        },
         _fillCanvas_0_1: function(data){
             var layers = [],
                 jls = data.canvas['ls'] || [],
@@ -70,11 +85,15 @@ Component.entryPoint = function(NS){
 
                     switch (jf['tp']) {
                         case 'path':
-                            fs[fs.length] = new NS.PathFeature(jf.clr, jf.d, jf.u, jf.dl);
+                            fs[fs.length] = new NS.PathFeature(jf.clr, jf.d, jf.u, jf.dl, {
+                                readOnly: this._isFeatureReadOnly(jf)
+                            });
                             break;
                         case 'cmt':
                             fs[fs.length] =
-                                new NS.CommentFeature(jf.clr, jf.d, jf.t, jf.u, jf.dl);
+                                new NS.CommentFeature(jf.clr, jf.d, jf.t, jf.u, jf.dl, {
+                                    readOnly: this._isFeatureReadOnly(jf)
+                                });
                             break;
                         case 'image':
                             this.setHrefOnZoomInButton(jf.src);
@@ -83,7 +102,9 @@ Component.entryPoint = function(NS){
                                 y: jf.rg[1],
                                 width: jf.rg[2],
                                 height: jf.rg[3]
-                            }, jf.u, jf.dl);
+                            }, jf.u, jf.dl, {
+                                readOnly: this._isFeatureReadOnly(jf)
+                            });
                             break;
                     }
                 }
@@ -175,7 +196,10 @@ Component.entryPoint = function(NS){
         ATTRS: {
             component: {value: COMPONENT},
             templateBlockName: {value: 'widget'},
+            userid: {value: UID},
+            date: {value: new Date()},
             data: {value: {}},
+            userActivity: {value: {}},
             callback: {}
         },
         CLICKS: {},
