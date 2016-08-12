@@ -8,7 +8,8 @@ Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
         COMPONENT = this,
-        SYS = Brick.mod.sys;
+        SYS = Brick.mod.sys,
+        UID = Brick.env.user.id | 0;
 
     var FeatureList = function(layer){
         this.init(layer);
@@ -94,7 +95,7 @@ Component.entryPoint = function(NS){
         unSelect: function(){
         },
         toJSON: function(){
-            return {'tp': this.type};
+            return {tp: this.type};
         },
         remove: function(){
             if (!this.layer){
@@ -106,11 +107,14 @@ Component.entryPoint = function(NS){
     NS.Feature = Feature;
 
     // Кривая на графике
-    var PathFeature = function(color, path, cfg){
+    var PathFeature = function(color, path, userid, date, cfg){
+        date = date | 0;
         cfg = Y.merge({
-            'color': color,
-            'path': path,
-            width: 2
+            color: color,
+            path: path,
+            width: 2,
+            userid: userid,
+            date: new Date(date * 1000)
         }, cfg || {});
 
         PathFeature.superclass.constructor.call(this, 'path', cfg);
@@ -119,8 +123,10 @@ Component.entryPoint = function(NS){
         init: function(cfg){
             PathFeature.superclass.init.call(this, cfg);
 
-            this.color = cfg['color'];
-            this.path = cfg['path'];
+            this.userid = cfg.userid;
+            this.date = cfg.date;
+            this.color = cfg.color;
+            this.path = cfg.path;
             this.width = cfg.width;
             this._fobj = null;
         },
@@ -143,7 +149,7 @@ Component.entryPoint = function(NS){
                 'stroke-dasharray': ''
             }));
 
-            gline.attr({'path': this.path.join(",")});
+            gline.attr({path: this.path.join(",")});
             this._fobj = gline;
         },
         eventSubscribe: function(ename, f){
@@ -160,10 +166,12 @@ Component.entryPoint = function(NS){
         },
         toJSON: function(){
             return {
-                'tp': this.type,
-                'clr': this.color,
-                'w': this.width,
-                'd': this.path
+                u: this.userid,
+                dl: this.date.getTime() / 1000,
+                tp: this.type,
+                clr: this.color,
+                w: this.width,
+                d: this.path
             };
         }
     });
@@ -172,17 +180,15 @@ Component.entryPoint = function(NS){
 
     // Фигура "комментарии", где:
     // path - массив четырех элементов - [x1, y1, x2, y2]
-    var CommentFeature = function(color, path, text, contentid, userid, udate, cfg){
+    var CommentFeature = function(color, path, text, userid, date, cfg){
         text = text || '';
-        contentid = contentid || 0;
         cfg = Y.merge({
             color: color,
             path: path,
             text: text,
-            contentid: contentid,
             width: 2,
             userid: userid,
-            date: new Date(udate * 1000)
+            date: new Date(date * 1000)
         }, cfg || {});
         CommentFeature.superclass.constructor.call(this, 'cmt', cfg);
     };
@@ -190,12 +196,11 @@ Component.entryPoint = function(NS){
         init: function(cfg){
             CommentFeature.superclass.init.call(this, cfg);
 
-            this.userid = cfg['userid'];
-            this.date = cfg['date'];
-            this.color = cfg['color'];
-            this.path = cfg['path'];
-            this.text = cfg['text'];
-            this.contentid = cfg['contentid'];
+            this.userid = cfg.userid;
+            this.date = cfg.date;
+            this.color = cfg.color;
+            this.path = cfg.path;
+            this.text = cfg.text;
             this.width = cfg.width;
             this._fobj = null;
             this._isEditMode = false;
@@ -224,7 +229,7 @@ Component.entryPoint = function(NS){
                 });
 
             glines.push(gline);
-            gline.attr({'path': ["M", p[0], p[1], "L", p[2], p[3]].join(",")});
+            gline.attr({path: ["M", p[0], p[1], "L", p[2], p[3]].join(",")});
 
             this._fobj = gline;
 
@@ -235,7 +240,8 @@ Component.entryPoint = function(NS){
                 html = tp.replace('comment', {
                     'info': !user ? "" : Brick.dateExt.convert(this.date) + ", " + user.get('viewName'),
                     'bclr': this.color,
-                    'left': p[2] - 150, 'top': p[3]
+                    'left': p[2] - 150, 'top': p[3],
+                    closeHide: this.userid > 0 && this.userid !== UID ? 'hide' : ''
                 });
 
             canvas._container.append(html);
@@ -271,6 +277,10 @@ Component.entryPoint = function(NS){
             if (this._isEditMode){
                 return;
             }
+            if (this.userid > 0 && this.userid !== UID){
+                return;
+            }
+
             this._isEditMode = true;
 
             var tp = this.template,
@@ -337,11 +347,21 @@ Component.entryPoint = function(NS){
     NS.CommentFeature = CommentFeature;
 
     // Изображение
-    var ImageFeature = function(src, cfg){
-        cfg = Y.merge({
+    var ImageFeature = function(src, region, userid, date, cfg){
+        var r = Y.merge({
             src: src,
             x: 0, y: 0, width: 1, height: 1
+        }, region || []);
+
+        date = date | 0;
+
+        cfg = Y.merge({
+            userid: userid,
+            date: new Date(date * 1000),
+            src: r.src,
+            x: r.x, y: r.y, width: r.width, height: r.height
         }, cfg || []);
+
         ImageFeature.superclass.constructor.call(this, 'image', cfg);
     };
     YAHOO.extend(ImageFeature, Feature, {
@@ -351,6 +371,8 @@ Component.entryPoint = function(NS){
             this._imgobj = null;
 
             this.src = cfg.src;
+            this.userid = cfg.userid;
+            this.date = cfg.date;
             this.setRegion(cfg.x, cfg.y, cfg.width, cfg.height);
         },
         setRegion: function(x, y, width, height){
@@ -387,9 +409,11 @@ Component.entryPoint = function(NS){
         },
         toJSON: function(){
             return {
-                'tp': this.type,
+                u: this.userid,
+                dl: this.date.getTime() / 1000,
+                tp: this.type,
                 src: this.src,
-                'rg': [this.x, this.y, this.width, this.height]
+                rg: [this.x, this.y, this.width, this.height]
             };
         }
     });
@@ -448,10 +472,15 @@ Component.entryPoint = function(NS){
             this._curFeature = null;
         },
         onClick: function(e){
-            if (!this._curFeature){
+            var feature = this._curFeature;
+
+            if (!feature){
                 return;
             }
-            this._curLayer.features.remove(this._curFeature);
+            if (feature.userid > 0 && feature.userid !== UID){
+                return;
+            }
+            this._curLayer.features.remove(feature);
         },
         _featureMouseOver: function(layer, feature){
             this._curLayer = layer;
@@ -543,7 +572,9 @@ Component.entryPoint = function(NS){
             this.gline.remove();
             this.gline = null;
 
-            var feature = new PathFeature('#' + e.tools.selectedColor, this.path);
+            var feature = new NS.PathFeature('#' + e.tools.selectedColor, this.path,
+                UID, (new Date()).getTime() / 1000);
+
             e.layer.features.add(feature);
             e.layer.refresh();
         },
@@ -576,7 +607,10 @@ Component.entryPoint = function(NS){
                 this.stopDraw(e);
             }
 
-            var layer = e.layer, g = layer.graphics, glines = g.set(), gline;
+            var layer = e.layer,
+                g = layer.graphics,
+                glines = g.set(),
+                gline;
 
             glines.push(gline = g.path().attr({
                 'stroke': '#' + e.tools.selectedColor,
@@ -611,8 +645,9 @@ Component.entryPoint = function(NS){
             }
             this._ismove = false;
 
-            var feature = new CommentFeature('#' + e.tools.selectedColor, this.path, '', 0,
-                Brick.env.user.id, (new Date()).getTime() / 1000);
+            var feature = new NS.CommentFeature('#' + e.tools.selectedColor, this.path, '',
+                UID, (new Date()).getTime() / 1000);
+
             e.layer.features.add(feature);
             e.layer.refresh();
 
@@ -812,7 +847,7 @@ Component.entryPoint = function(NS){
         },
         toJSON: function(){
             var ret = {
-                'tp': 'Layer',
+                tp: 'Layer',
                 'fs': []
             };
 
@@ -861,5 +896,4 @@ Component.entryPoint = function(NS){
         }
     };
     NS.LayerList = LayerList;
-
 };

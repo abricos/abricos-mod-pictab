@@ -9,7 +9,8 @@ Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
         COMPONENT = this,
-        SYS = Brick.mod.sys;
+        SYS = Brick.mod.sys,
+        UID = Brick.env.user.id | 0;
 
     NS.PicTabWidget = Y.Base.create('PicTabWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
@@ -48,6 +49,8 @@ Component.entryPoint = function(NS){
             image = Y.merge({
                 id: 0,
                 title: 'Image ' + id,
+                userid: UID,
+                date: new Date(),
                 data: {}
             }, image || {});
 
@@ -58,8 +61,11 @@ Component.entryPoint = function(NS){
             var tab = tbvWidget.addTab({
                 dbId: image.id,
                 title: image.title,
+                userid: image.userid,
+                date: image.date,
                 data: image.data,
                 editMode: this.get('editMode'),
+                userActivity: this.get('userActivity'),
                 TabViewPage: NS.PicTabPageWidget
             });
             if (isHand){
@@ -97,7 +103,8 @@ Component.entryPoint = function(NS){
             component: {value: COMPONENT},
             templateBlockName: {value: 'widget'},
             imageList: {},
-            editMode: {value: false}
+            editMode: {value: false},
+            userActivity: {value: {}}
         },
         CLICKS: {
             addTab: {
@@ -206,6 +213,8 @@ Component.entryPoint = function(NS){
         toJSON: function(){
             return {
                 id: this.get('dbId'),
+                useri: this.get('userid'),
+                date: this.get('date'),
                 title: this.get('title'),
                 data: this.canvasWidget.toJSON()
             };
@@ -216,7 +225,8 @@ Component.entryPoint = function(NS){
             templateBlockName: {value: 'tab'},
             dbId: {value: 0},
             data: {value: {}},
-            editMode: {value: false}
+            editMode: {value: false},
+            userActivity: {value: {}},
         },
         CLICKS: {
             uploadImage: 'uploadImage',

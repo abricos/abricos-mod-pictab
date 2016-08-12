@@ -13,52 +13,15 @@ Component.entryPoint = function(NS){
     NS.CanvasWidget = Y.Base.create('CanvasWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
             var tp = this.template,
-                svdata = this.get('data'),
-                callback = this.get('callback');
+                data = this.get('data'),
+                callback = this.get('callback'),
+                layers = [];
 
-            this.selectedBackground = null;
-
-            var layers = [];
-            if (svdata && svdata['v'] == '0.1' && svdata['canvas']){
-
-                var jls = svdata['canvas']['ls'] || [];
-                for (var i = 0; i < jls.length; i++){
-
-                    var clName = jls[i]['tp'];
-                    if (NS[clName]){
-
-                        // TODO: решение в лоб. на перспективу необходимо сделать универсальный менеджер по сохранению и загрузки объектов
-                        var fs = [], jfs = jls[i]['fs'] || [];
-                        for (var ii = 0; ii < jfs.length; ii++){
-                            var jf = jfs[ii];
-                            switch (jf['tp']) {
-                                case 'path':
-                                    fs[fs.length] = new NS.PathFeature(jf['clr'], jf.d);
-                                    break;
-                                case 'cmt':
-                                    jf.u = jf.u || 0;
-                                    jf['dl'] = jf['dl'] || 0;
-                                    fs[fs.length] = new NS.CommentFeature(jf['clr'], jf.d, jf['t'],
-                                        0, jf.u, jf['dl']);
-                                    break;
-                                case 'image':
-                                    this.setHrefOnZoomInButton(jf['src']);
-                                    fs[fs.length] = new NS.ImageFeature(jf['src'], {
-                                        x: jf.rg[0],
-                                        y: jf.rg[1],
-                                        width: jf.rg[2],
-                                        height: jf.rg[3]
-                                    });
-                                    break;
-                            }
-                        }
-
-                        layers[layers.length] = new NS[clName]({
-                            'features': fs
-                        });
-                    }
+            if (data && data.canvas){
+                // TODO: решение в лоб. на перспективу необходимо сделать универсальный менеджер по сохранению и загрузки объектов
+                if (data.v === '0.1'){
+                    layers = this._fillCanvas_0_1(data);
                 }
-
             } else {
                 layers = [
                     new NS.Layer(),
@@ -68,8 +31,7 @@ Component.entryPoint = function(NS){
 
             this.backgroundLayer = layers[0];
 
-            var instance = this,
-                rg = this.get('srcNode').get('region');
+            var instance = this;
 
             this.canvas = new NS.Canvas(tp.one('pane'), {
                 layers: layers,
@@ -85,6 +47,52 @@ Component.entryPoint = function(NS){
             });
         },
         destructor: function(){
+        },
+        _fillCanvas_0_1: function(data){
+            var layers = [],
+                jls = data.canvas['ls'] || [],
+                i, clName, fs, jfs;
+
+            for (i = 0; i < jls.length; i++){
+                clName = jls[i]['tp'];
+                if (!NS[clName]){
+                    continue;
+                }
+
+                fs = [];
+                jfs = jls[i]['fs'] || [];
+
+                for (var ii = 0; ii < jfs.length; ii++){
+                    var jf = jfs[ii];
+
+                    jf.u = jf.u | 0;
+                    jf.dl = jf.dl | 0;
+
+                    switch (jf['tp']) {
+                        case 'path':
+                            fs[fs.length] = new NS.PathFeature(jf.clr, jf.d, jf.u, jf.dl);
+                            break;
+                        case 'cmt':
+                            fs[fs.length] =
+                                new NS.CommentFeature(jf.clr, jf.d, jf.t, jf.u, jf.dl);
+                            break;
+                        case 'image':
+                            this.setHrefOnZoomInButton(jf.src);
+                            fs[fs.length] = new NS.ImageFeature(jf.src, {
+                                x: jf.rg[0],
+                                y: jf.rg[1],
+                                width: jf.rg[2],
+                                height: jf.rg[3]
+                            }, jf.u, jf.dl);
+                            break;
+                    }
+                }
+
+                layers[layers.length] = new NS[clName]({
+                    'features': fs
+                });
+            }
+            return layers;
         },
         onClick: function(e){
             switch (e.dataClick) {
