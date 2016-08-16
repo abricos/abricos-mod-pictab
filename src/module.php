@@ -40,7 +40,7 @@ class PictabAction {
 
 class PictabPermission extends Ab_UserPermission {
 
-    public function PictabPermission(PictabModule $module){
+    public function __construct(PictabModule $module){
 
         $defRoles = array(
             new Ab_UserRole(PictabAction::VIEW, Ab_UserGroup::REGISTERED),
