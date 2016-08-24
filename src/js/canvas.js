@@ -167,6 +167,11 @@ Component.entryPoint = function(NS){
             this.setHrefOnZoomInButton(src);
         },
         setHrefOnZoomInButton: function(src){
+            var a = src ? src.split('/') : [];
+            if (a[a.length - 5] === 'filemanager'){
+                a.splice(a.length - 2, 1);
+                src = a.join('/');
+            }
             this.template.gel('openOriginImage').href = !src ? "#" : src;
         },
         imageZoomIn: function(){
